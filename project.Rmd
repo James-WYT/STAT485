@@ -1,0 +1,137 @@
+
+```{r}
+library('lubridate')
+library('Hmisc')
+library('tidyverse')
+library('ggplot2')
+library('dplyr')
+library('tidyquant')
+library('quantmod')
+library('TSstudio')
+library('tseries')
+library('MASS')
+library('forecast')
+```
+
+##Data Processing
+```{r}
+data <- read.csv(file = 'Microsoft_Stock.csv')
+print(data)
+```
+```{r}
+summary(data)
+```
+
+```{r}
+describe(data)
+```
+
+
+#since we are working with time series, the most essential features are the time related feature. And in the summary, we can see that the data feature is still character, so we need to convert datatime to index in this example.
+
+```{r}
+data$Date <- as.Date(mdy_hms(data$Date))
+print(data)
+```
+
+```{r}
+rownames(data) <- data[,1]
+print(data)
+```
+
+##Data Visualization
+
+```{r}
+ts_plot(data,
+        title = "Over view",
+        slider = TRUE,
+        type = "multiple")
+```
+
+```{r}
+lineChart(as.xts(ts(stock)), line.type = 'h', theme = 'white')
+```
+
+```{r}
+barChart(as.xts(ts(stock)),bar.type = 'hlc', TA = NULL)
+```
+```{r}
+data <- data[,-1]
+stock_close <- ts(data$Close, start=2015, frequency=12)
+plot(stock_close)
+title('Stock Price')
+```
+```{r}
+lnstock = log(stock_close[1:48])
+lnstock
+```
+
+```{r}
+acf(lnstock, lag.max = 20)
+```
+we have a very gradual descent in our lags so each line going up represents the degree of correlation between our lags.
+
+```{r}
+pacf(lnstock, lag.max = 20)
+```
+we have an immediate drop in the first lag, meaning that all the higher-order autocorrelations are effectively explained by the first lag autocorrelation.
+
+
+##Stationarity
+#In order to apply a time series model, we need to identify if the dataset is stationary.
+#Phillips-Perron Test
+```{r}
+pp.test(lnstock,alternative="stationary")
+```
+```{r}
+difflnstock=diff(lnstock,1)
+difflnstock
+```
+```{r}
+pp.test(difflnstock,alternative="stationary")
+```
+#We have a p-value of 0.908 for our original in time series, indicates non stationarity. However for the time series that we differenced, we now have a p-value of 0.01 so that indicates at the 5% level we can reject a null hypothesis of non stationarity.
+
+```{r}
+print(data)
+```
+#ADF test
+```{r}
+adf.test(lnstock)
+adf.test(data$Open)
+adf.test(data$High)
+adf.test(data$Low)
+adf.test(data$Close)
+adf.test(data$Volume)
+```
+Same conclusion.
+
+##Splitting data
+```{r}
+n <- 200 
+#could change, may or may not effect the training
+train <- head(Cl(data), length(Cl(data))-n)
+test <- tail(Cl(data), n)
+```
+
+#Naive Method
+```{r}
+fc_na <- naive(train, h=n)
+autoplot(fc_na) +
+  autolayer(ts(test, start=length(train)), series = "Test Data")
+```
+
+#Non-seasonal ARIMA
+
+#AR
+
+#More model to chooose
+
+#percentage Error(?)
+
+#compare(?)
+
+
+
+
+
