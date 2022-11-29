@@ -11,6 +11,7 @@ library('TSstudio')
 library('tseries')
 library('MASS')
 library('forecast')
+library('TSA')
 ```
 
 ##Data Processing
@@ -49,18 +50,23 @@ ts_plot(data,
 ```
 
 ```{r}
-lineChart(as.xts(ts(stock)), line.type = 'h', theme = 'white')
+data_use <- data[,-1]
 ```
 
+
 ```{r}
-barChart(as.xts(ts(stock)),bar.type = 'hlc', TA = NULL)
+stock_close <- ts(data_use$Close, start=c(2015,4),end=c(2019,3),frequency = 12)
+stock_open <- ts(data_use$Open, start=c(2015,4),end=c(2019,3),frequency = 12)
+print(stock_close)
+print(stock_open)
 ```
 ```{r}
-data <- data[,-1]
-stock_close <- ts(data$Close, start=2015, frequency=12)
-plot(stock_close)
-title('Stock Price')
+plot(stock_close,type='o',main='Two series',xlab='Time',ylab='Time series',col='blue')
+lines(stock_open,type='o',col='red')
+legend('topleft',legend=c('close','open'), lty=c(1,1),col=c('blue','red'))
 ```
+
+
 ```{r}
 lnstock = log(stock_close[1:48])
 lnstock
@@ -92,42 +98,28 @@ pp.test(difflnstock,alternative="stationary")
 ```
 #We have a p-value of 0.908 for our original in time series, indicates non stationarity. However for the time series that we differenced, we now have a p-value of 0.01 so that indicates at the 5% level we can reject a null hypothesis of non stationarity.
 
-```{r}
-print(data)
-```
+##need redo the stationary test.
+
 #ADF test
 ```{r}
-adf.test(lnstock)
 adf.test(data$Open)
-adf.test(data$High)
-adf.test(data$Low)
 adf.test(data$Close)
-adf.test(data$Volume)
 ```
 Same conclusion.
 
-##Splitting data
-```{r}
-n <- 200 
-#could change, may or may not effect the training
-train <- head(Cl(data), length(Cl(data))-n)
-test <- tail(Cl(data), n)
-```
-
-#Naive Method
-```{r}
-fc_na <- naive(train, h=n)
-autoplot(fc_na) +
-  autolayer(ts(test, start=length(train)), series = "Test Data")
-```
+##
+use close and open(stock_close and stock_open)
+(close as the first choice)
 
 #Non-seasonal ARIMA
 
-#AR
+#AR(1) --> tutorial 4/5 could test with different phi
 
-#More model to chooose
+#AR(2)?? --> tutorial 6
 
-#percentage Error(?)
+#compare AR(2) and ARMA(2,1)?? --> tut 7/8
+
+#More model to choose
 
 #compare(?)
 
