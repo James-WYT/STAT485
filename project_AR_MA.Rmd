@@ -1,0 +1,56 @@
+---
+title: "STAT 485"
+author: "Weifeng"
+date: "2022-12-03"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r warning=FALSE}
+library(stats)
+library(TSA)
+library(tseries)
+```
+
+
+```{r setup, include=FALSE}
+data = read.csv('Microsoft_Stock.csv')
+head(data)
+```
+
+# AR(1)
+```{r}
+log_data_close = log(data$Close)
+par(mfrow=c(1,3))
+acf(log_data_close)
+pacf(log_data_close)
+eacf(log_data_close)
+
+
+
+```
+
+Through the PACF,it shows that the time series has been convergent at lag 1, we consider AR(1) model is suitable for the time series.
+
+EACF [arima(1,0,1)]
+```{r}
+AR_1_model <- arima(log_data_close, order=c(1,0,0))
+AR_1_model
+
+MA1_model = stats::arima(log_data_close, order = c(0,0,1))
+MA1_model
+
+Random_walk_model <- arima(log_data_close, order=c(0,1,0))
+Random_walk_model
+```
+
+comparing AIC in three different models, we can get random walk model have the smallest AIC which iss -7939.78
+
+```{r}
+par(mfrow=c(2,2))
+plot(residuals(Random_walk_model), main="Residual plot")
+hist(rstandard(Random_walk_model),xlab="Standardised residuals",main="Random Walk")
+qqnorm(rstandard(Random_walk_model),main="QQplot");qqline(rstandard(Random_walk_model))
+acf(residuals(Random_walk_model),main="ACF for Random Walk Model standardized residuals")
+```
