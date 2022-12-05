@@ -1,5 +1,19 @@
 
 ```{r}
+install.packages('lubridate') 
+install.packages('Hmisc') 
+install.packages('tidyverse') 
+install.packages('ggplot2') 
+install.packages('dplyr') 
+install.packages('tidyquant')
+install.packages('quantmod')
+install.packages('TSstudio')
+install.packages('tseries')
+install.packages('MASS')
+install.packages('forecast')
+install.packages('TSA')
+
+
 library('lubridate')
 library('Hmisc')
 library('tidyverse')
@@ -16,7 +30,7 @@ library('TSA')
 
 ##Data Processing
 ```{r}
-data <- read.csv(file = 'Microsoft_Stock.csv')
+data <- read.csv(file = '~/Desktop/STAT485/Microsoft_Stock.csv')
 print(data)
 ```
 ```{r}
@@ -112,7 +126,9 @@ use close and open(stock_close and stock_open)
 (close as the first choice)
 
 #Non-seasonal ARIMA
-
+fit <- Arima(lnstock, order=c(0,1,0), include.constant=TRUE, method='ML') 
+Arima(data, order=c(1,1,0), include.constant=TRUE, method='ML') 
+Arima(data, order=c(1,1,1), include.constant=TRUE, method='ML') 
 #AR(1) --> tutorial 4/5 could test with different phi
 
 #AR(2)?? --> tutorial 6
